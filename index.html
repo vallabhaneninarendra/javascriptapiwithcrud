@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Javascript Fetch API</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+ <link href="Content/bootstrap.css" rel="stylesheet" />
+
+  <script src="Scripts/jquery-1.11.0.min.js"></script>
+  <script src="Scripts/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container">
+    	<div class="row">
+      <div class="col-sm-6">
+        <button type="button" id="addButton"
+                class="btn btn-primary"
+                data-toggle="modal" data-target="#myModal">
+          Add
+        </button>
+      </div>
+    </div>
+    	  <table>
+    	  	<tbody class="cont">
+  <tr>
+    <th>id</th>
+    <th>name</th>
+    <th>username</th>
+    <th>email</th>
+    <th>action</th>
+  </tr>
+  
+  	
+  </tbody>
+</table>
+    </div>
+      <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Form</h4>
+        </div>
+        <div class="modal-body">
+        	<form class="Post_user">
+        	       <div class="panel-body">
+            <div class="form-group">
+              <label for="username">
+                Name
+              </label>
+              <input type="text" id="name"
+                     class="form-control" />
+            </div>
+            <div class="form-group">
+              <label for="name">
+                User Name
+              </label>
+              <input type="text" id="username"
+                     class="form-control" />
+            </div>
+            <div class="form-group">
+              <label for="url">Email</label>
+              <input type="email" id="email"
+                     class="form-control" />
+            </div>
+          </div>
+          <input type="hidden" name="uid" id="uid">
+          	<div class="form-group">
+             
+              <button type="submit" class="btn btn-primary addu" onclick="addClick()">Add User</button>
+            </div>
+            <div class="form-group">
+             
+              <button type="submit" class="btn btn-primary update" style="display: none">Update</button>
+            </div>
+          </div>
+        	</form>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</body>
+</html>
+<script type="text/javascript">
+	  $(document).ready(function () {
+     
+    });
+	 let addPostForm = document.querySelector('.Post_user');
+	 let updateBtn = document.querySelector('.update');
+	 let name = document.getElementById('name');
+	 let username = document.getElementById('username');
+	 let email = document.getElementById('email');
+	 let url = 'https://jsonplaceholder.typicode.com/users';
+	 let output = '';
+	 let container = document.querySelector('.cont');
+	
+
+
+
+
+//get data
+ fetch(url)
+  .then(response => response.json())
+  .then(data => renderUsers(data))
+
+
+var renderUsers = (data) => {
+  data.forEach(user => {
+       output += `
+   
+       
+  <tr class="userTable" data-id=${user.id}>
+    <td class="id">${user.id} </td>
+
+    <td class="lname">${user.name}</td>
+    <td class="username">${user.username}</td>
+    <td class="email">${user.email}</td>
+  <td>
+      <button type='button'
+                      onclick='userDelete(this)' 
+                      class='btn btn-default' 
+                      data-id=${user.id} >
+                      <span class='glyphicon glyphicon-remove' />
+              </button>|| <a href="#" id='edit'
+                      onclick='userEdit(${user.id})' 
+                      class='btn btn-default' 
+                      data-id=${user.id} >
+                      <span class='glyphicon glyphicon-edit' />
+              </a></td>
+  </tr>
+
+`;
+
+       
+    })
+  	      
+    container.innerHTML = output;
+}
+
+
+ function addClick() {
+ 	$(".addu").show();
+ 	$(".update").hide();
+      formClear();
+    }
+
+function userDelete(ctl) {
+      var id = $(ctl).data("id");
+if(id){
+			//console.log('DELETE user');
+			fetch(`https://jsonplaceholder.typicode.com/users/` + id, {
+  method: 'DELETE',
+}).then(response => response.json())
+  .then(res =>{
+  	 $(ctl).parents("tr").remove();
+  	alert('Delete');
+  })
+
+		}
+	}
+      // Call Web API to delete a user
+      /*$.ajax({
+        url: "https://jsonplaceholder.typicode.com/users/" + id,
+        type: 'DELETE',
+        success: function (user) {
+          $(ctl).parents("tr").remove();
+        },
+        error: function (request, message, error) {
+          handleException(request, message, error);
+        }
+      });
+    }*/
+
+
+    function userEdit(ctl){
+    	alert('hi');
+         //	console.log('Form Submitted');
+	fetch(`https://jsonplaceholder.typicode.com/users/` + ctl,{
+		 
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8',
+  },
+	}).then((response) => response.json())
+  .then(data => {
+    console.log(data.name);
+    $("#name").val(data.name);
+    $("#username").val(data.username);
+    $("#email").val(data.email);
+    $("#uid").val(data.id);
+    $(".addu").hide();
+    $(".update").show();
+  	$("#myModal").modal('show');
+        
+    })
+
+  updateBtn.addEventListener('click',(e)=>{
+  	e.preventDefault();
+	let id= $("#uid").val();
+	let name = $("#name").val();
+   let username  = $("#username").val();
+   let email = $("#email").val();
+fetch(`https://jsonplaceholder.typicode.com/posts/` + id, {
+  method: 'PATCH',
+  body: JSON.stringify({
+    name: name,
+    username:username,
+    email:email,
+
+  }),
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8',
+  },
+})
+  .then((response) => response.json())
+ .then(data => {
+  	const dataArray =[];
+  	dataArray.push(data);
+  	renderUsers(dataArray);
+  })
+
+})
+}
+
+// container.addEventListener('click',(e)=>{
+// 	e.preventDefault();
+// 	let editbtn = e.target.id == 'edit';
+// 	let edit = e.target.parentElement.dataset.id;
+// 		//let del = e.target.parentElement.dataset.id;
+// //console.log(editbtn);
+// 		//delete
+// //console.log(del);
+// 		//DELETE METHOD
+// 		if(del){
+// 			//console.log('DELETE user');
+// 			fetch(`https://jsonplaceholder.typicode.com/users/` + del, {
+//   method: 'DELETE',
+// }).then(response => response.json())
+//   .then(res => {
+//   	 $(del).parents("tr").remove();
+//   	var res = JSON.stringify(res);
+//   	 let data =JSON.parse(res);
+//   	 renderUsers(data);
+
+//   	// renderUsers = (data);
+//   })
+// 		}
+
+// 		if(edit){
+// 		     var row = $(this).parent().parent();
+
+// 			let name = row.find('.lname').text();
+// 			console.log(row);
+// 		}
+// })
+//add data
+addPostForm.addEventListener('submit',(e)=>{
+
+	e.preventDefault();
+//	console.log('Form Submitted');
+	fetch(url,{
+		 method: 'POST',
+  body: JSON.stringify({
+    name: name.value,
+    username: username.value,
+    email: email.value,
+  }),
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8',
+  },
+	}).then((response) => response.json())
+  .then(data => {
+  	const dataArray =[];
+  	dataArray.push(data);
+  	renderUsers(dataArray);
+  })
+})
+
+
+
+
+
+
+
+	/*async function getUsers() {
+    let url = 'https://jsonplaceholder.typicode.com/users';
+
+    try {
+        let res = await fetch(url);
+        return await res.json();
+    } catch (error) {
+        console.log(error);
+    }
+}
+async function renderUsers() {
+    let users = await getUsers();
+    console.log(users);
+    let html = '';
+    users.forEach(user => {
+        let htmlSegment = `
+  <tr>
+    <td>${user.id} </td>
+    <td>${user.name}</td>
+    <td>${user.username}</td>
+    <td>${user.email}</td>
+  <td>
+      <button type='button'
+                      onclick='userDelete(this);'
+                     class='btn btn-default' 
+                      "data-id='${user.id}'>
+                      <span class='glyphicon glyphicon-remove' /></button></td>
+  </tr>
+
+`;
+
+        html += htmlSegment;
+    });
+
+    let container = document.querySelector('.cont');
+    container.innerHTML = html;
+}renderUsers();*/
+
+
+
+/**/
+</script>
